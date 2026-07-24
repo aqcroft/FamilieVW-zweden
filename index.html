@@ -1396,3 +1396,1101 @@ const activityPoints = [
   {
     name: "Örebro Slott",
     icon: "🏰",
+    lat: 59.2730,
+    lng: 15.2150,
+    note: "Kasteel en rivierpromenade.",
+    dayIndex: 12
+  },
+  {
+    name: "Tiveden bezoekersgebied",
+    icon: "🌲",
+    lat: 58.7180,
+    lng: 14.6020,
+    note: "Gebruik de officiële hoofdroute en parkeerplaatsen.",
+    dayIndex: 13
+  },
+  {
+    name: "Läckö Slott",
+    icon: "🏰",
+    lat: 58.6740,
+    lng: 13.2200,
+    note: "Kasteel aan het Vänernmeer.",
+    dayIndex: 14
+  },
+  {
+    name: "Smögen",
+    icon: "🦐",
+    lat: 58.3550,
+    lng: 11.2250,
+    note: "Optionele kustrit wanneer het niet te druk is.",
+    dayIndex: 15
+  },
+  {
+    name: "Haga",
+    icon: "☕",
+    lat: 57.6990,
+    lng: 11.9580,
+    note: "Fika en kaneelbrood.",
+    dayIndex: 16
+  },
+  {
+    name: "Liseberg",
+    icon: "🎢",
+    lat: 57.6950,
+    lng: 11.9920,
+    note: "Attractiepark en avondprogramma.",
+    dayIndex: 17
+  },
+  {
+    name: "Brännö",
+    icon: "⛴️",
+    lat: 57.6480,
+    lng: 11.7740,
+    note: "Zuidelijke archipel.",
+    dayIndex: 17
+  },
+  {
+    name: "Vrångö",
+    icon: "⛴️",
+    lat: 57.5720,
+    lng: 11.7880,
+    note: "Zuidelijke archipel en kustwandeling.",
+    dayIndex: 17
+  }
+];
+
+const walkPoints = [
+  {
+    name: "Bjurkärr, Åsnen",
+    lat: 56.6260,
+    lng: 14.7250,
+    note: "2-4 km · eenvoudig · oud beukenbos en vlakke paden",
+    dayIndex: 4
+  },
+  {
+    name: "Trollberget / Åsnenroute",
+    lat: 56.6700,
+    lng: 14.7300,
+    note: "3-5 km · eenvoudig tot gemiddeld · bos, wortels en meeroevers",
+    dayIndex: 5
+  },
+  {
+    name: "Visingsö",
+    lat: 58.0470,
+    lng: 14.3220,
+    note: "5-8 km · eenvoudig · vlak eiland, ook goed per fiets",
+    dayIndex: 7
+  },
+  {
+    name: "Omberg - Hjässan",
+    lat: 58.3230,
+    lng: 14.6550,
+    note: "2-4 km · gemiddeld · uitzicht en enkele steilere stukken",
+    dayIndex: 8
+  },
+  {
+    name: "Djurgården",
+    lat: 59.3250,
+    lng: 18.1330,
+    note: "5-7 km · eenvoudig · park, musea en water",
+    dayIndex: 10
+  },
+  {
+    name: "Vaxholm",
+    lat: 59.4030,
+    lng: 18.3530,
+    note: "4-6 km · eenvoudig · dorp en kust",
+    dayIndex: 11
+  },
+  {
+    name: "Stenkällerundan, Tiveden",
+    lat: 58.7180,
+    lng: 14.6020,
+    note: "ca. 2,2 km · gemiddeld · kort maar rotsachtig",
+    dayIndex: 13
+  },
+  {
+    name: "Trollkyrkorundan, Tiveden",
+    lat: 58.7090,
+    lng: 14.6100,
+    note: "ca. 4,6 km · gemiddeld · rotsen, wortels en bos",
+    dayIndex: 13
+  },
+  {
+    name: "Läckö / Kållandsö",
+    lat: 58.6740,
+    lng: 13.2200,
+    note: "3-5 km · eenvoudig · meer, bos en kasteelomgeving",
+    dayIndex: 14
+  },
+  {
+    name: "Ramsvikslandet",
+    lat: 58.4310,
+    lng: 11.2480,
+    note: "3-6 km · gemiddeld · granietrotsen en zee",
+    dayIndex: 15
+  },
+  {
+    name: "Vrångö / Brännö",
+    lat: 57.5720,
+    lng: 11.7880,
+    note: "4-7 km · eenvoudig tot gemiddeld · archipel en rotsachtige kust",
+    dayIndex: 17
+  }
+];
+
+const camps = [
+  {
+    name: "Omgeving Hamburg",
+    lat: 53.3998,
+    lng: 9.9680,
+    note: "Zoek rond Seevetal, Winsen, Buchholz of noordelijk Hamburg.",
+    dayIndex: 0
+  },
+  {
+    name: "Kopenhagen - camping met OV",
+    lat: 55.6400,
+    lng: 12.5000,
+    note: "Kies vooral op OV-verbinding en toegestane camperlengte.",
+    dayIndex: 1
+  },
+  {
+    name: "Getnö Lake Åsnen Resort",
+    lat: 56.6150,
+    lng: 14.7250,
+    note: "Praktisch voorbeeld uit de agenda; reserveer in het hoogseizoen.",
+    dayIndex: 3
+  },
+  {
+    name: "Gränna Camping",
+    lat: 58.0210,
+    lng: 14.4550,
+    note: "Praktisch bij haven en dorp; zeer hoge reserveringsprioriteit.",
+    dayIndex: 6
+  },
+  {
+    name: "Stockholm - First Camp / Bredäng",
+    lat: 59.2970,
+    lng: 17.9460,
+    note: "Kies op OV en toegestane camperlengte.",
+    dayIndex: 9
+  },
+  {
+    name: "Örebro - rand van de stad",
+    lat: 59.2900,
+    lng: 15.1600,
+    note: "Zoek bus- of fietsverbinding.",
+    dayIndex: 12
+  },
+  {
+    name: "Kronocamping Lidköping",
+    lat: 58.5060,
+    lng: 13.1480,
+    note: "Praktische uitvalsbasis voor Vänern en Läckö.",
+    dayIndex: 14
+  },
+  {
+    name: "Ramsvik / Fjällbacka",
+    lat: 58.4310,
+    lng: 11.2480,
+    note: "Ramsvik Stugby & Camping, Wiggersviks of rond Fjällbacka.",
+    dayIndex: 15
+  },
+  {
+    name: "Lisebergs Camping Askim Strand",
+    lat: 57.6180,
+    lng: 11.9040,
+    note: "Gezinsvriendelijk en aan zee.",
+    dayIndex: 16
+  }
+];
+
+const map = L.map("map", {
+  zoomControl: true
+}).setView([57.2, 12.8], 5);
+
+L.tileLayer(
+  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  {
+    maxZoom: 18,
+    attribution: "&copy; OpenStreetMap-bijdragers"
+  }
+).addTo(map);
+
+const routeLayer = L.layerGroup().addTo(map);
+const activitiesLayer = L.layerGroup().addTo(map);
+const walksLayer = L.layerGroup().addTo(map);
+const campsLayer = L.layerGroup().addTo(map);
+
+function gmapsSearch(lat, lng, query = "") {
+  const target = query
+    ? encodeURIComponent(query)
+    : `${lat},${lng}`;
+
+  return `https://www.google.com/maps/search/?api=1&query=${target}`;
+}
+
+function gmapsDirections(lat, lng, query = "") {
+  const destination = query
+    ? encodeURIComponent(query)
+    : `${lat},${lng}`;
+
+  return `https://www.google.com/maps/dir/?api=1&destination=${destination}&travelmode=driving`;
+}
+
+function dayButtonLabel(index) {
+  return days[index].date.replace(
+    /^(Maandag|Dinsdag|Woensdag|Donderdag|Vrijdag|Zaterdag|Zondag)\s+/i,
+    ""
+  );
+}
+
+function popupHtml({
+  title,
+  sub,
+  lat,
+  lng,
+  query = "",
+  dayIndexes = [],
+  agendaLabel = "Bekijk dagplan"
+}) {
+  const validDays = dayIndexes.filter(
+    index => Number.isInteger(index) && days[index]
+  );
+
+  const dayButtons = validDays.length
+    ? `
+      <div class="popup-days-label">
+        Dagprogramma
+      </div>
+
+      <div class="popup-day-buttons">
+        ${validDays.map(
+          index => `
+            <button
+              type="button"
+              class="popup-day-button"
+              data-open-day="${index}"
+            >
+              ${dayButtonLabel(index)}
+            </button>
+          `
+        ).join("")}
+      </div>
+    `
+    : "";
+
+  const mainAgendaButton = validDays.length === 1
+    ? `
+      <button
+        type="button"
+        class="popup-button"
+        data-open-day="${validDays[0]}"
+      >
+        📋 ${agendaLabel}
+      </button>
+    `
+    : "";
+
+  return `
+    <div class="popup-title">
+      ${title}
+    </div>
+
+    <div class="popup-sub">
+      ${sub || ""}
+    </div>
+
+    ${dayButtons}
+
+    <div class="popup-actions">
+      ${mainAgendaButton}
+
+      <a
+        class="popup-link primary"
+        href="${gmapsDirections(lat, lng, query)}"
+        target="_blank"
+        rel="noopener"
+      >
+        🚐 Route erheen
+      </a>
+
+      <a
+        class="popup-link"
+        href="${gmapsSearch(lat, lng, query)}"
+        target="_blank"
+        rel="noopener"
+      >
+        📍 Bekijk in Maps
+      </a>
+    </div>
+  `;
+}
+
+const routeLatLngs = routeStops.map(
+  stop => [stop.lat, stop.lng]
+);
+
+L.polyline(
+  routeLatLngs,
+  {
+    color: "#ed6a17",
+    weight: 5,
+    opacity: .92,
+    lineJoin: "round"
+  }
+).addTo(routeLayer);
+
+L.polyline(
+  [
+    [55.6761, 12.5683],
+    [56.6400, 14.7400]
+  ],
+  {
+    color: "#ed6a17",
+    weight: 5,
+    opacity: .92
+  }
+).addTo(routeLayer);
+
+routeStops.forEach(stop => {
+  const icon = L.divIcon({
+    className: "",
+    html: `
+      <div class="route-number">
+        ${stop.n}
+      </div>
+    `,
+    iconSize: [30, 30],
+    iconAnchor: [15, 15]
+  });
+
+  L.marker(
+    [stop.lat, stop.lng],
+    { icon }
+  )
+    .bindPopup(
+      popupHtml({
+        title: `${stop.n}. ${stop.name}`,
+        sub:
+          `${stop.dates}` +
+          (
+            stop.nights
+              ? ` · ${stop.nights} nacht${stop.nights > 1 ? "en" : ""}`
+              : ""
+          ),
+        lat: stop.lat,
+        lng: stop.lng,
+        query: stop.name
+          .replace(" (terug)", "")
+          .replace(" (thuiskomst)", ""),
+        dayIndexes: stop.dayIndexes
+      })
+    )
+    .addTo(routeLayer);
+});
+
+activityPoints.forEach(point => {
+  const icon = L.divIcon({
+    className: "",
+    html: `
+      <div class="minor-marker">
+        ${point.icon}
+      </div>
+    `,
+    iconSize: [22, 22],
+    iconAnchor: [11, 11]
+  });
+
+  L.marker(
+    [point.lat, point.lng],
+    { icon }
+  )
+    .bindPopup(
+      popupHtml({
+        title: point.name,
+        sub: point.note,
+        lat: point.lat,
+        lng: point.lng,
+        query: point.name,
+        dayIndexes: [point.dayIndex],
+        agendaLabel: "Dagplan & activiteiten"
+      })
+    )
+    .addTo(activitiesLayer);
+});
+
+walkPoints.forEach(point => {
+  const icon = L.divIcon({
+    className: "",
+    html: `
+      <div class="minor-marker walk-marker">
+        🥾
+      </div>
+    `,
+    iconSize: [22, 22],
+    iconAnchor: [11, 11]
+  });
+
+  L.marker(
+    [point.lat, point.lng],
+    { icon }
+  )
+    .bindPopup(
+      popupHtml({
+        title: point.name,
+        sub: point.note,
+        lat: point.lat,
+        lng: point.lng,
+        query: point.name,
+        dayIndexes: [point.dayIndex],
+        agendaLabel: "Bekijk wandeldag"
+      })
+    )
+    .addTo(walksLayer);
+});
+
+camps.forEach(point => {
+  const icon = L.divIcon({
+    className: "",
+    html: `
+      <div class="minor-marker camp-marker">
+        ⛺
+      </div>
+    `,
+    iconSize: [22, 22],
+    iconAnchor: [11, 11]
+  });
+
+  L.marker(
+    [point.lat, point.lng],
+    { icon }
+  )
+    .bindPopup(
+      popupHtml({
+        title: point.name,
+        sub: point.note,
+        lat: point.lat,
+        lng: point.lng,
+        query: point.name,
+        dayIndexes: [point.dayIndex],
+        agendaLabel: "Campingadvies"
+      })
+    )
+    .addTo(campsLayer);
+});
+
+const excursionConnections = [
+  [
+    [58.0209, 14.4676],
+    [58.0470, 14.3220]
+  ],
+  [
+    [59.3293, 18.0686],
+    [59.4030, 18.3530]
+  ],
+  [
+    [57.7089, 11.9746],
+    [57.6480, 11.7740],
+    [57.5720, 11.7880]
+  ]
+];
+
+excursionConnections.forEach(points => {
+  L.polyline(
+    points,
+    {
+      color: "#1f6086",
+      weight: 3,
+      dashArray: "7 7",
+      opacity: .8
+    }
+  ).addTo(activitiesLayer);
+});
+
+const legend = L.control({
+  position: "bottomright"
+});
+
+legend.onAdd = function () {
+  const div = L.DomUtil.create(
+    "div",
+    "legend"
+  );
+
+  div.innerHTML = `
+    <div class="legend-row">
+      <span
+        class="legend-line"
+        style="background:#ed6a17"
+      ></span>
+      Hoofdroute
+    </div>
+
+    <div class="legend-row">
+      <span
+        class="legend-dot"
+        style="background:#1f6086"
+      ></span>
+      Uitstapje / activiteit
+    </div>
+
+    <div class="legend-row">
+      <span
+        class="legend-dot"
+        style="background:#216b5a"
+      ></span>
+      Wandeling
+    </div>
+
+    <div class="legend-row">
+      <span
+        class="legend-dot"
+        style="background:#6f4ca5"
+      ></span>
+      Campingadvies
+    </div>
+  `;
+
+  return div;
+};
+
+legend.addTo(map);
+
+const timeline = document.getElementById("timeline");
+
+let activeIndex = -1;
+
+function renderTimeline(filter = "") {
+  const term = filter
+    .trim()
+    .toLowerCase();
+
+  timeline.innerHTML = "";
+
+  days.forEach((day, index) => {
+    const haystack = [
+      day.date,
+      day.title,
+      day.summary,
+      day.distance,
+      day.duration,
+      ...(day.activities || []),
+      day.walk || "",
+      day.tip || "",
+      day.camp || ""
+    ]
+      .join(" ")
+      .toLowerCase();
+
+    if (term && !haystack.includes(term)) {
+      return;
+    }
+
+    const card = document.createElement("article");
+
+    card.className = "day-card";
+    card.dataset.index = index;
+
+    if (index === activeIndex) {
+      card.classList.add("active");
+    }
+
+    const todayIso = new Date()
+      .toISOString()
+      .slice(0, 10);
+
+    if (day.iso === todayIso) {
+      card.classList.add("today");
+    }
+
+    const typeClass =
+      day.type === "long"
+        ? "long"
+        : day.type === "drive"
+          ? "drive"
+          : "rest";
+
+    const typeText =
+      day.type === "long"
+        ? "Lange rijdag"
+        : day.type === "drive"
+          ? "Rijdag"
+          : "Verblijfsdag";
+
+    const activitiesHtml = day.activities?.length
+      ? `
+        <div class="detail-section">
+          <strong>
+            Activiteiten
+          </strong>
+
+          <ul>
+            ${day.activities.map(
+              activity => `<li>${activity}</li>`
+            ).join("")}
+          </ul>
+        </div>
+      `
+      : "";
+
+    const walkHtml = day.walk
+      ? `
+        <div class="walk-box">
+          <strong>
+            🥾 Wandeling
+          </strong>
+          <br>
+          ${day.walk}
+        </div>
+      `
+      : "";
+
+    const tipHtml = day.tip
+      ? `
+        <div class="tip-box">
+          <strong>
+            📌 Rustig-reizen-tip
+          </strong>
+          <br>
+          ${day.tip}
+        </div>
+      `
+      : "";
+
+    const campHtml = day.camp
+      ? `
+        <div class="camp-box">
+          <strong>
+            🏕️ Campingadvies
+          </strong>
+          <br>
+          ${day.camp}
+        </div>
+      `
+      : "";
+
+    const bookingHtml = day.camp
+      ? `
+        <div class="booking">
+          <label for="status-${index}">
+            Reserveringsstatus
+          </label>
+
+          <select
+            id="status-${index}"
+            class="status-select"
+          >
+            <option value="">
+              Nog niet ingesteld
+            </option>
+
+            <option value="shortlist">
+              Op shortlist
+            </option>
+
+            <option value="contacted">
+              Gecontacteerd
+            </option>
+
+            <option value="booked">
+              Geboekt
+            </option>
+
+            <option value="not-needed">
+              Niet nodig
+            </option>
+          </select>
+
+          <label for="notes-${index}">
+            Eigen notitie
+          </label>
+
+          <textarea
+            id="notes-${index}"
+            class="notes"
+            placeholder="Boekingsnummer, aankomsttijd, alternatief…"
+          ></textarea>
+        </div>
+      `
+      : "";
+
+    card.innerHTML = `
+      <div class="day-date">
+        ${day.date}
+      </div>
+
+      <h3>
+        ${day.title}
+      </h3>
+
+      <div class="day-meta">
+        <span class="pill ${typeClass}">
+          ${typeText}
+        </span>
+
+        <span class="pill">
+          ${day.distance}
+        </span>
+
+        <span class="pill">
+          ${day.duration}
+        </span>
+      </div>
+
+      <p class="day-summary">
+        ${day.summary}
+      </p>
+
+      <div class="details">
+        ${activitiesHtml}
+        ${walkHtml}
+        ${tipHtml}
+        ${campHtml}
+
+        <div class="card-actions">
+          <a
+            href="${gmapsSearch(
+              day.focus[0],
+              day.focus[1],
+              day.query
+            )}"
+            target="_blank"
+            rel="noopener"
+          >
+            📍 Google Maps
+          </a>
+
+          <button
+            type="button"
+            class="centre-btn"
+          >
+            🎯 Centreer kaart
+          </button>
+        </div>
+
+        ${bookingHtml}
+      </div>
+    `;
+
+    card.addEventListener(
+      "click",
+      event => {
+        if (
+          event.target.closest(
+            "a, button, select, textarea"
+          )
+        ) {
+          return;
+        }
+
+        activateDay(index, true);
+      }
+    );
+
+    const centreBtn = card.querySelector(
+      ".centre-btn"
+    );
+
+    centreBtn.addEventListener(
+      "click",
+      event => {
+        event.stopPropagation();
+
+        map.flyTo(
+          day.focus,
+          10,
+          { duration: .8 }
+        );
+      }
+    );
+
+    timeline.appendChild(card);
+
+    restoreBooking(card, index);
+  });
+}
+
+function restoreBooking(card, index) {
+  const status = card.querySelector(
+    ".status-select"
+  );
+
+  const notes = card.querySelector(
+    ".notes"
+  );
+
+  if (!status || !notes) {
+    return;
+  }
+
+  const saved = JSON.parse(
+    localStorage.getItem(
+      `zweden2026-day-${index}`
+    ) || "{}"
+  );
+
+  status.value = saved.status || "";
+  notes.value = saved.notes || "";
+
+  const save = () => {
+    localStorage.setItem(
+      `zweden2026-day-${index}`,
+      JSON.stringify({
+        status: status.value,
+        notes: notes.value
+      })
+    );
+  };
+
+  status.addEventListener(
+    "change",
+    save
+  );
+
+  notes.addEventListener(
+    "input",
+    save
+  );
+}
+
+function activateDay(
+  index,
+  scroll = false
+) {
+  activeIndex = index;
+
+  document
+    .querySelectorAll(".day-card")
+    .forEach(card => {
+      card.classList.toggle(
+        "active",
+        Number(card.dataset.index) === index
+      );
+    });
+
+  const day = days[index];
+
+  map.flyTo(
+    day.focus,
+    9,
+    { duration: .8 }
+  );
+
+  if (scroll) {
+    const card = document.querySelector(
+      `.day-card[data-index="${index}"]`
+    );
+
+    card?.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }
+}
+
+function openAgendaDay(index) {
+  if (
+    !Number.isInteger(index) ||
+    !days[index]
+  ) {
+    return;
+  }
+
+  const searchInput = document.getElementById(
+    "searchInput"
+  );
+
+  searchInput.value = "";
+
+  renderTimeline();
+
+  map.closePopup();
+
+  requestAnimationFrame(
+    () => activateDay(index, true)
+  );
+}
+
+document.addEventListener(
+  "click",
+  event => {
+    const button = event.target.closest(
+      "[data-open-day]"
+    );
+
+    if (!button) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    openAgendaDay(
+      Number(button.dataset.openDay)
+    );
+  }
+);
+
+renderTimeline();
+
+document
+  .getElementById("searchInput")
+  .addEventListener(
+    "input",
+    event => {
+      renderTimeline(
+        event.target.value
+      );
+    }
+  );
+
+document
+  .querySelectorAll("[data-layer]")
+  .forEach(input => {
+    input.addEventListener(
+      "change",
+      () => {
+        const layers = {
+          route: routeLayer,
+          activities: activitiesLayer,
+          walks: walksLayer,
+          camps: campsLayer
+        };
+
+        const layer = layers[
+          input.dataset.layer
+        ];
+
+        if (input.checked) {
+          layer.addTo(map);
+        } else {
+          map.removeLayer(layer);
+        }
+      }
+    );
+  });
+
+document
+  .getElementById("routeBtn")
+  .addEventListener(
+    "click",
+    () => {
+      map.fitBounds(
+        L.latLngBounds(
+          routeLatLngs
+        ).pad(.12)
+      );
+    }
+  );
+
+document
+  .getElementById("printBtn")
+  .addEventListener(
+    "click",
+    () => {
+      window.print();
+    }
+  );
+
+document
+  .getElementById("todayBtn")
+  .addEventListener(
+    "click",
+    () => {
+      const today = new Date()
+        .toISOString()
+        .slice(0, 10);
+
+      let index = days.findIndex(
+        day => day.iso === today
+      );
+
+      if (index < 0) {
+        const now = new Date(today);
+
+        if (
+          now <
+          new Date(days[0].iso)
+        ) {
+          index = 0;
+        } else {
+          index = days.length - 1;
+        }
+      }
+
+      activateDay(
+        index,
+        true
+      );
+    }
+  );
+
+map.fitBounds(
+  L.latLngBounds(
+    routeLatLngs
+  ).pad(.12)
+);
+
+window.addEventListener(
+  "load",
+  () => {
+    setTimeout(
+      () => {
+        map.invalidateSize(true);
+      },
+      150
+    );
+  }
+);
+
+window.addEventListener(
+  "resize",
+  () => {
+    clearTimeout(
+      window.__mapResizeTimer
+    );
+
+    window.__mapResizeTimer = setTimeout(
+      () => {
+        map.invalidateSize(true);
+      },
+      150
+    );
+  }
+);
+
+window.addEventListener(
+  "orientationchange",
+  () => {
+    setTimeout(
+      () => {
+        map.invalidateSize(true);
+      },
+      300
+    );
+  }
+);
+
+setTimeout(
+  () => {
+    const today = new Date()
+      .toISOString()
+      .slice(0, 10);
+
+    const index = days.findIndex(
+      day => day.iso === today
+    );
+
+    if (index >= 0) {
+      activateDay(
+        index,
+        true
+      );
+    }
+  },
+  250
+);
+</script>
+</body>
+</html>
