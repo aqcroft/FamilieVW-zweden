@@ -1,0 +1,931 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#174f42">
+  <title>Rondreis Zweden 2026 - interactieve reisplanner</title>
+
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="preconnect" href="https://tile.openstreetmap.org">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIINfQ3NQeoCAl8MwP60fOaTUNlK3s0O8pA="
+        crossorigin="">
+
+  <style>
+    :root {
+      --green-900: #123d34;
+      --green-800: #174f42;
+      --green-700: #216b5a;
+      --green-100: #eaf4f0;
+      --blue-700: #1f6086;
+      --blue-100: #e7f3fa;
+      --orange: #ed6a17;
+      --orange-soft: #fff0e6;
+      --yellow-soft: #fff9dd;
+      --red-soft: #fff0ee;
+      --ink: #24302d;
+      --muted: #64726e;
+      --line: #d7e2de;
+      --surface: #ffffff;
+      --page: #f4f7f5;
+      --shadow: 0 12px 30px rgba(22, 54, 46, .11);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--page);
+      overflow: hidden;
+    }
+
+    button, input, select, textarea { font: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+
+    .app {
+      height: 100%;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+    }
+
+    header {
+      padding: 14px 18px 12px;
+      background: linear-gradient(135deg, var(--green-900), var(--green-700));
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand h1 {
+      font-size: clamp(1.15rem, 2vw, 1.65rem);
+      margin: 0;
+      line-height: 1.15;
+      letter-spacing: -.02em;
+    }
+
+    .brand p {
+      margin: 4px 0 0;
+      opacity: .82;
+      font-size: .88rem;
+    }
+
+    .trip-badge {
+      flex: 0 0 auto;
+      border-radius: 999px;
+      padding: 7px 11px;
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.22);
+      font-size: .82rem;
+      white-space: nowrap;
+    }
+
+    .toolbar {
+      padding: 10px 12px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      overflow-x: auto;
+      scrollbar-width: thin;
+    }
+
+    .toolbar button, .toolbar a {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--green-900);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .toolbar button:hover, .toolbar a:hover { background: var(--green-100); }
+    .toolbar .primary {
+      background: var(--green-800);
+      color: white;
+      border-color: var(--green-800);
+    }
+
+    .toolbar .spacer { flex: 1 0 12px; }
+
+    .layout {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(330px, 420px) 1fr;
+    }
+
+    aside {
+      min-height: 0;
+      overflow-y: auto;
+      padding: 14px;
+      border-right: 1px solid var(--line);
+      background: var(--page);
+      scroll-behavior: smooth;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+      background: #d8eef8;
+    }
+
+    .summary-card, .filters-card, .day-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 5px 16px rgba(26, 62, 53, .05);
+    }
+
+    .summary-card { padding: 14px; margin-bottom: 12px; }
+    .summary-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .summary-title h2 { font-size: 1rem; margin: 0; color: var(--green-900); }
+    .summary-title span { font-size: .78rem; color: var(--muted); }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .stat {
+      background: var(--green-100);
+      border-radius: 12px;
+      padding: 10px;
+      min-width: 0;
+    }
+    .stat strong { display: block; color: var(--green-900); font-size: .95rem; }
+    .stat span { display: block; color: var(--muted); font-size: .72rem; margin-top: 2px; }
+
+    .filters-card { padding: 12px; margin-bottom: 12px; }
+    .filters-title {
+      font-weight: 800;
+      color: var(--green-900);
+      font-size: .9rem;
+      margin-bottom: 9px;
+    }
+    .filter-grid { display: flex; flex-wrap: wrap; gap: 7px; }
+    .filter-chip {
+      cursor: pointer;
+      user-select: none;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 7px 10px;
+      background: white;
+      font-size: .78rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .filter-chip input { accent-color: var(--green-800); }
+
+    .search {
+      width: 100%;
+      margin-top: 10px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+      outline: none;
+    }
+    .search:focus { border-color: var(--green-700); box-shadow: 0 0 0 3px rgba(33,107,90,.12); }
+
+    .timeline-label {
+      margin: 14px 3px 9px;
+      color: var(--green-900);
+      font-weight: 900;
+      font-size: .92rem;
+    }
+
+    .day-card {
+      padding: 12px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .day-card:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+    .day-card.active { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(237,106,23,.13); }
+    .day-card.today::before {
+      content: "Vandaag";
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      background: var(--orange);
+      color: white;
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: .68rem;
+      font-weight: 900;
+    }
+
+    .day-date { color: var(--blue-700); font-size: .76rem; font-weight: 900; text-transform: uppercase; letter-spacing: .04em; }
+    .day-card h3 { font-size: 1rem; margin: 4px 0 5px; padding-right: 58px; line-height: 1.25; }
+    .day-meta { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 8px; }
+    .pill {
+      font-size: .71rem;
+      border-radius: 999px;
+      padding: 5px 8px;
+      background: var(--blue-100);
+      color: var(--blue-700);
+      font-weight: 800;
+    }
+    .pill.drive { background: var(--orange-soft); color: #9d3c00; }
+    .pill.rest { background: var(--green-100); color: var(--green-800); }
+    .pill.long { background: var(--red-soft); color: #9d261f; }
+
+    .day-summary { margin: 0; color: var(--muted); font-size: .83rem; line-height: 1.45; }
+
+    .details {
+      display: none;
+      border-top: 1px solid var(--line);
+      margin-top: 10px;
+      padding-top: 10px;
+    }
+    .day-card.active .details { display: block; }
+
+    .detail-section { margin-top: 9px; }
+    .detail-section strong { display: block; color: var(--green-900); font-size: .78rem; margin-bottom: 4px; }
+    .detail-section ul { margin: 0; padding-left: 18px; color: #42504c; font-size: .79rem; line-height: 1.48; }
+
+    .walk-box, .tip-box, .camp-box {
+      border-radius: 12px;
+      padding: 9px 10px;
+      margin-top: 9px;
+      font-size: .78rem;
+      line-height: 1.45;
+    }
+    .walk-box { background: var(--green-100); }
+    .tip-box { background: var(--yellow-soft); }
+    .camp-box { background: #f2effb; }
+
+    .card-actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
+    .card-actions a, .card-actions button {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--green-900);
+      border-radius: 10px;
+      padding: 7px 9px;
+      text-decoration: none;
+      font-size: .74rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .booking {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--line);
+    }
+    .booking label { font-size: .74rem; color: var(--muted); font-weight: 800; display: block; margin: 7px 0 4px; }
+    .booking select, .booking textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 9px;
+      background: white;
+    }
+    .booking textarea { min-height: 62px; resize: vertical; }
+
+    .footer-note {
+      color: var(--muted);
+      font-size: .72rem;
+      line-height: 1.45;
+      padding: 10px 4px 20px;
+    }
+
+    .route-number {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--orange);
+      border: 3px solid white;
+      box-shadow: 0 2px 7px rgba(0,0,0,.25);
+      color: white;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      font-size: .78rem;
+    }
+
+    .minor-marker {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--blue-700);
+      border: 2px solid white;
+      box-shadow: 0 2px 7px rgba(0,0,0,.22);
+      display: grid;
+      place-items: center;
+      font-size: .65rem;
+    }
+    .walk-marker { background: var(--green-700); }
+    .camp-marker { background: #6f4ca5; }
+
+    .leaflet-popup-content-wrapper { border-radius: 14px; }
+    .leaflet-popup-content { margin: 13px 15px; line-height: 1.4; }
+    .popup-title { font-weight: 900; color: var(--green-900); margin-bottom: 4px; }
+    .popup-sub { color: var(--muted); font-size: .8rem; margin-bottom: 8px; }
+    .popup-link {
+      display: inline-block;
+      text-decoration: none;
+      background: var(--green-800);
+      color: white !important;
+      border-radius: 9px;
+      padding: 7px 9px;
+      font-size: .76rem;
+      font-weight: 800;
+      margin-top: 5px;
+    }
+
+    .legend {
+      background: white;
+      border-radius: 12px;
+      padding: 9px 10px;
+      box-shadow: 0 4px 18px rgba(0,0,0,.18);
+      font-size: .73rem;
+      line-height: 1.55;
+    }
+    .legend-row { display: flex; align-items: center; gap: 7px; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    .legend-line { width: 20px; height: 3px; border-radius: 4px; display: inline-block; }
+
+    @media (max-width: 850px) {
+      body { overflow: auto; }
+      .app { height: auto; min-height: 100%; display: block; }
+      header { position: sticky; top: 0; z-index: 1100; }
+      .toolbar { position: sticky; top: 65px; z-index: 1090; }
+      .layout {
+        display: flex;
+        flex-direction: column;
+      }
+      #map { height: 52vh; min-height: 390px; order: 1; }
+      aside {
+        order: 2;
+        overflow: visible;
+        border-right: 0;
+      }
+      .trip-badge { display: none; }
+    }
+
+    @media print {
+      body { overflow: visible; background: white; }
+      .app { display: block; }
+      header { color: #111; background: none; padding: 0 0 12px; }
+      .brand p, .trip-badge, .toolbar, .filters-card, #map, .booking, .card-actions { display: none !important; }
+      .layout { display: block; }
+      aside { overflow: visible; border: 0; padding: 0; }
+      .summary-card { box-shadow: none; }
+      .day-card {
+        break-inside: avoid;
+        box-shadow: none;
+        margin-bottom: 8px;
+      }
+      .details { display: block !important; }
+      .footer-note { margin-top: 15px; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">
+      <h1>Rondreis Zweden 2026</h1>
+      <p>Baarn - Kopenhagen - meren - Stockholm - Göteborg</p>
+    </div>
+    <div class="trip-badge">25 juli t/m 13 augustus · camper 7,7 m</div>
+  </header>
+
+  <nav class="toolbar" aria-label="Reisplanner acties">
+    <button class="primary" id="todayBtn">📅 Vandaag</button>
+    <button id="routeBtn">🗺️ Volledige route</button>
+    <button id="printBtn">🖨️ Print / bewaar als PDF</button>
+    <a href="Rondreis_Zweden_meren_Stockholm_Goteborg_2026.pdf" target="_blank" rel="noopener">📄 Originele agenda</a>
+    <span class="spacer"></span>
+    <span style="font-size:.76rem;color:#64726e;white-space:nowrap;">Kaartposities zijn indicatief</span>
+  </nav>
+
+  <main class="layout">
+    <aside id="sidebar">
+      <section class="summary-card">
+        <div class="summary-title">
+          <h2>Reisoverzicht</h2>
+          <span>Versie 1</span>
+        </div>
+        <div class="stats">
+          <div class="stat"><strong>20 dagen</strong><span>25 jul - 13 aug</span></div>
+          <div class="stat"><strong>3.300-3.500 km</strong><span>totale rijafstand</span></div>
+          <div class="stat"><strong>11 nachtenstops</strong><span>incl. terugreis</span></div>
+        </div>
+      </section>
+
+      <section class="filters-card">
+        <div class="filters-title">Kaartlagen</div>
+        <div class="filter-grid">
+          <label class="filter-chip"><input type="checkbox" data-layer="route" checked> 🟠 Route</label>
+          <label class="filter-chip"><input type="checkbox" data-layer="activities" checked> 📍 Uitstapjes</label>
+          <label class="filter-chip"><input type="checkbox" data-layer="walks" checked> 🥾 Wandelingen</label>
+          <label class="filter-chip"><input type="checkbox" data-layer="camps" checked> 🏕️ Campings</label>
+        </div>
+        <input id="searchInput" class="search" type="search" placeholder="Zoek dag, plaats of activiteit…">
+      </section>
+
+      <div class="timeline-label">Dag voor dag</div>
+      <div id="timeline"></div>
+
+      <div class="footer-note">
+        De inhoud volgt de aangeleverde reisagenda. Openingstijden, bootdiensten, toegangsregels,
+        tol- en voertuigcategorieën, weersomstandigheden en campingbeschikbaarheid kunnen wijzigen.
+        Controleer deze vlak voor vertrek. De kaart is bedoeld als reisoverzicht en niet als
+        gecertificeerde campernavigatie.
+      </div>
+    </aside>
+
+    <div id="map" aria-label="Interactieve kaart van de rondreis"></div>
+  </main>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+
+<script>
+const routeStops = [
+  {n:1, name:"Baarn", dates:"25 juli", nights:0, lat:52.2112, lng:5.2877},
+  {n:2, name:"Omgeving Hamburg", dates:"25 juli", nights:1, lat:53.3998, lng:9.9680},
+  {n:3, name:"Kopenhagen", dates:"26-27 juli", nights:2, lat:55.6761, lng:12.5683},
+  {n:4, name:"Åsnenmeer", dates:"28-30 juli", nights:3, lat:56.6400, lng:14.7400},
+  {n:5, name:"Gränna / Vättern", dates:"31 juli-2 aug.", nights:3, lat:58.0209, lng:14.4676},
+  {n:6, name:"Stockholm", dates:"3-5 aug.", nights:3, lat:59.3293, lng:18.0686},
+  {n:7, name:"Örebro / Tiveden", dates:"6-7 aug.", nights:2, lat:59.2753, lng:15.2134},
+  {n:8, name:"Vänern / Lidköping", dates:"8 aug.", nights:1, lat:58.5052, lng:13.1577},
+  {n:9, name:"Bohuslän / Fjällbacka", dates:"9 aug.", nights:1, lat:58.5974, lng:11.2824},
+  {n:10, name:"Göteborg", dates:"10-11 aug.", nights:2, lat:57.7089, lng:11.9746},
+  {n:11, name:"Omgeving Hamburg", dates:"12 aug.", nights:1, lat:53.3998, lng:9.9680},
+  {n:12, name:"Baarn", dates:"13 aug.", nights:0, lat:52.2112, lng:5.2877}
+];
+
+const days = [
+  {
+    iso:"2026-07-25", date:"Zaterdag 25 juli", title:"Baarn naar omgeving Hamburg",
+    focus:[53.3998,9.9680], distance:"ca. 450 km", duration:"5-6 uur netto", type:"drive",
+    summary:"Praktische eerste etappe via Bremen. Vermijd de binnenstad van Hamburg.",
+    activities:["Korte avondwandeling langs de Elbe of door een nabijgelegen natuurgebied.","Eenvoudig diner op de camping; houd de avond bewust leeg."],
+    tip:"Plan de passage langs Hamburg buiten de avondspits. De A1 en A7 kunnen druk zijn.",
+    camp:"Zoek rond Seevetal, Winsen, Buchholz of noordelijk Hamburg. Controleer vooraf de maximale voertuiglengte.",
+    query:"Seevetal camping"
+  },
+  {
+    iso:"2026-07-26", date:"Zondag 26 juli", title:"Naar Kopenhagen",
+    focus:[55.6761,12.5683], distance:"ca. 330-360 km", duration:"4,5-5 uur netto", type:"drive",
+    summary:"Via de E45 en E20 over de Grote Belt. Na aankomst alleen installeren en rustig de stad in.",
+    activities:["Nyhavn en de kades aan het einde van de middag.","Wandeling via Kongens Nytorv naar de haven.","Bij voldoende energie: streetfood bij Reffen."],
+    tip:"Controleer voor de Grote Belt de juiste voertuigcategorie van de camper.",
+    camp:"Kies een camping met goede OV-verbinding, zodat de camper twee dagen kan blijven staan.",
+    query:"camping Copenhagen public transport"
+  },
+  {
+    iso:"2026-07-27", date:"Maandag 27 juli", title:"Volle dag Kopenhagen",
+    focus:[55.6797,12.5910], distance:"Geen verplaatsing", duration:"rustige stadsdag", type:"rest",
+    summary:"Combineer één hoofdactiviteit met tijd om rond te lopen.",
+    activities:["Fietstocht of wandeling langs de haven.","Rosenborg Slot en Kongens Have.","Tivoli vanaf de namiddag of avond.","Alternatief: rondvaart vanaf Nyhavn."],
+    walk:"Nyhavn - Amalienborg - Kastellet - Kleine Zeemeermin, ongeveer 5 km en geheel vlak.",
+    tip:"Laat de camper op de camping en gebruik fiets of openbaar vervoer.",
+    query:"Nyhavn Copenhagen"
+  },
+  {
+    iso:"2026-07-28", date:"Dinsdag 28 juli", title:"Kopenhagen naar het Åsnenmeer",
+    focus:[56.6400,14.7400], distance:"ca. 220-250 km", duration:"3-3,5 uur", type:"drive",
+    summary:"Na de Öresundbrug volgen bossen, meren en rode boerderijen.",
+    activities:["Boodschappen doen in Malmö, Lund of Växjö.","Eerste zwempartij of SUP-tocht.","Avondwandeling langs het water.","Zonsondergang vanaf een steiger."],
+    tip:"Kies bij voorkeur een plaats direct aan het water, maar controleer schaduw en bereikbaarheid voor een lange camper.",
+    camp:"Praktische voorbeelden: Getnö Lake Åsnen Resort of een kleinere camping rond Urshult, Torne of Sirkön. Reserveer in het hoogseizoen.",
+    query:"Getnö Lake Åsnen Resort"
+  },
+  {
+    iso:"2026-07-29", date:"Woensdag 29 juli", title:"Åsnen: waterdag",
+    focus:[56.6260,14.7250], distance:"Geen verplaatsing", duration:"waterdag", type:"rest",
+    summary:"De beste plek van de reis voor kanoën en suppen.",
+    activities:["Huur kano's of kajaks voor een halve dag.","SUP langs beschutte oevers.","Vissen vanaf de kant of steiger met geldige vergunning.","Picknick op een rustige oever."],
+    walk:"Bjurkärr bij Sunnabron: korte lussen van ongeveer 2-4 km door oud beukenbos. Vrijwel vlak.",
+    tip:"Neem waterschoenen, zwemvesten en een waterdichte tas mee.",
+    query:"Bjurkärr Åsnen Sunnabron"
+  },
+  {
+    iso:"2026-07-30", date:"Donderdag 30 juli", title:"Åsnen: bos en eland",
+    focus:[56.6700,14.7300], distance:"Lokale ritten", duration:"volle dag", type:"rest",
+    summary:"Bos, dieren en een korte fietstocht als afwisseling van de waterdag.",
+    activities:["Bezoek het nationale park via Sunnabron.","Fiets een deel van de Banvallsleden.","Elandenpark als de kinderen dieren willen zien.","Rustmiddag bij de camping."],
+    walk:"Trollberget of een lokale natuurroute van 3-5 km. Kies een gemarkeerde lus.",
+    tip:"Muggenmiddel is vooral in de avond nuttig.",
+    query:"Trollberget Åsnen"
+  },
+  {
+    iso:"2026-07-31", date:"Vrijdag 31 juli", title:"Åsnen naar Gränna",
+    focus:[58.0209,14.4676], distance:"ca. 200-220 km", duration:"3 uur", type:"drive",
+    summary:"Rustig noordwaarts naar Gränna aan het Vätternmeer.",
+    activities:["Wandeling door Gränna en langs de haven.","Polkagriswinkel of demonstratie.","Zwemmen bij de camping als het weer goed is."],
+    tip:"De historische straatjes zijn smal; parkeer de camper op de camping en loop.",
+    camp:"Gränna Camping ligt praktisch bij haven en dorp. Vanwege hoogseizoen vroeg reserveren.",
+    query:"Gränna Camping"
+  },
+  {
+    iso:"2026-08-01", date:"Zaterdag 1 augustus", title:"Visingsö",
+    focus:[58.0470,14.3220], distance:"Veerboot als voetpassagier", duration:"dagtocht", type:"rest",
+    summary:"Laat de camper staan en vaar naar het vlakke, groene eiland Visingsö.",
+    activities:["Fietsen huren bij de haven.","Ruïnes van Visingsborg.","Traditionele paardenkoets indien beschikbaar.","Picknick en zwemmen."],
+    walk:"Westzijde van het eiland: te voet een lus van 5-8 km; per fiets kan vrijwel het hele eiland.",
+    tip:"Neem een vroege boot en controleer de laatste terugvaart.",
+    query:"Visingsö ferry"
+  },
+  {
+    iso:"2026-08-02", date:"Zondag 2 augustus", title:"Omberg en Vättern",
+    focus:[58.3230,14.6550], distance:"ca. 45 km enkele reis", duration:"lokale dagtocht", type:"rest",
+    summary:"Mooie uitzichten over Vättern zonder een zware bergwandeling.",
+    activities:["Bezoek Naturum Tåkern.","Korte wandeling op Omberg.","Lunch of fika bij een boerderij of café.","Bij warm weer zwemmen aan het Vätternmeer."],
+    walk:"Eenvoudig: Hjässan 2-4 km. Actiever: Ellen Keys led of een gemarkeerde lus van 6-8 km.",
+    tip:"Ga vroeg; parkeerplaatsen kunnen op mooie zomerdagen vol raken.",
+    query:"Omberg Hjässan"
+  },
+  {
+    iso:"2026-08-03", date:"Maandag 3 augustus", title:"Gränna naar Stockholm",
+    focus:[59.3293,18.0686], distance:"ca. 300-320 km", duration:"3,5-4 uur", type:"drive",
+    summary:"Een overzichtelijke snelwegdag. Arriveer bij voorkeur vóór de avondspits.",
+    activities:["Eerste wandeling door Gamla Stan.","Diner rond Södermalm of aan het water.","Uitzicht vanaf Monteliusvägen bij zonsondergang."],
+    tip:"Rijd niet met de camper naar het centrum; gebruik metro, bus en boot.",
+    camp:"Voorbeelden: First Camp City-Stockholm of campings aan de zuidwestzijde rond Bredäng. Kies op OV en toegestane camperlengte.",
+    query:"First Camp City Stockholm"
+  },
+  {
+    iso:"2026-08-04", date:"Dinsdag 4 augustus", title:"Stockholm klassiek",
+    focus:[59.3250,18.1330], distance:"Geen verplaatsing", duration:"stadsdag", type:"rest",
+    summary:"Eén museum in de ochtend, daarna Djurgården en de kades.",
+    activities:["Vasamuseum.","Wandeling over Djurgården.","Skansen of het Vikingmuseum.","Gamla Stan en het Koninklijk Paleis."],
+    walk:"Djurgården-wandeling van 5-7 km, grotendeels vlak en groen.",
+    tip:"Boek populaire musea tijdig en begin bij het Vasamuseum vóór de grootste drukte.",
+    query:"Vasa Museum Stockholm"
+  },
+  {
+    iso:"2026-08-05", date:"Woensdag 5 augustus", title:"Stockholmse archipel",
+    focus:[59.4030,18.3530], distance:"Dagtocht per boot", duration:"archipeldag", type:"rest",
+    summary:"Kies een haalbare dagtocht in plaats van een zeer lange vaart.",
+    activities:["Boottocht naar Vaxholm voor vesting, haven en lunch.","Alternatief: kortere archipelrondvaart zonder overstappen.","Kajaktocht met gids bij rustig weer.","Avond vrij op de camping."],
+    walk:"Vaxholm: 4-6 km door het dorp en langs de kust. Licht en vrijwel vlak.",
+    tip:"Neem een jas mee; op het water kan het ook bij zon fris zijn.",
+    query:"Vaxholm"
+  },
+  {
+    iso:"2026-08-06", date:"Donderdag 6 augustus", title:"Stockholm naar Örebro",
+    focus:[59.2753,15.2134], distance:"ca. 200 km", duration:"2,5 uur", type:"drive",
+    summary:"Korte verplaatsing na drie intensievere stadsdagen.",
+    activities:["Optionele stop bij Mariefred en Gripsholm bij vroeg vertrek.","Örebro Slott en de rivierpromenade.","Wadköping openluchtwijk.","Fika in het centrum."],
+    tip:"De etappe is bewust kort gehouden; houd de avond rustig.",
+    camp:"Kies een camping of camperplaats aan de rand van Örebro met bus- of fietsverbinding.",
+    query:"camping Örebro"
+  },
+  {
+    iso:"2026-08-07", date:"Vrijdag 7 augustus", title:"Tiveden Nationaal Park",
+    focus:[58.7180,14.6020], distance:"ca. 85-100 km enkele reis", duration:"lokale dagtocht", type:"rest",
+    summary:"Ruiger boslandschap met rotsblokken en heldere meren.",
+    activities:["Picknick bij het bezoekersgebied.","Zwemmen bij Vitsand bij geschikt weer.","Korte boswandeling en terug naar Örebro, of dichter bij het park overnachten."],
+    walk:"Stenkällerundan ca. 2,2 km, kort maar rotsachtig. Trollkyrkorundan ca. 4,6 km met meer hoogteverschil en wortels.",
+    tip:"Met een camper van 7,7 meter uitsluitend de aangegeven hoofdroute en officiële parkeerplaatsen gebruiken.",
+    query:"Tiveden National Park visitor centre"
+  },
+  {
+    iso:"2026-08-08", date:"Zaterdag 8 augustus", title:"Naar Vänern en Läckö",
+    focus:[58.6740,13.2200], distance:"ca. 145-170 km", duration:"2-2,5 uur", type:"drive",
+    summary:"Naar het grootste meer van Zweden en Läckö Slott.",
+    activities:["Läckö Slott.","Naturum Vänerskärgården - Victoriahuset.","Strand of SUP bij rustig weer.","Avondwandeling in Lidköping."],
+    walk:"Korte kust- en boswandeling bij Läckö, 3-5 km. Vlak tot licht glooiend.",
+    tip:"Eén nacht is voldoende bij tijdige aankomst; bij slecht weer kan het kasteel de hoofdactiviteit zijn.",
+    camp:"Kronocamping Lidköping is praktisch; voor meer rust kan een kleinere camping richting Kållandsö worden gekozen.",
+    query:"Kronocamping Lidköping"
+  },
+  {
+    iso:"2026-08-09", date:"Zondag 9 augustus", title:"Naar Bohuslän en Fjällbacka",
+    focus:[58.5974,11.2824], distance:"ca. 170-200 km", duration:"2,5-3 uur", type:"drive",
+    summary:"Granietrotsen, vissershavens en kleine eilanden aan de westkust.",
+    activities:["Fjällbacka en de haven.","Krabben vangen vanaf een steiger.","Verse garnalen of vis eten.","Korte rit naar Smögen wanneer het niet te druk is."],
+    walk:"Kungsklyftan is kort maar heeft trappen en rotsen. Rustiger: Ramsvikslandet 3-6 km.",
+    tip:"Vermijd kleine kustweggetjes als de navigatie die als afkorting voorstelt. Natte rotsen zijn glad.",
+    camp:"Mogelijke bases: Ramsvik Stugby & Camping, Wiggersviks Camping of een camping rond Fjällbacka.",
+    query:"Ramsvik Stugby Camping"
+  },
+  {
+    iso:"2026-08-10", date:"Maandag 10 augustus", title:"Bohuslän naar Göteborg",
+    focus:[57.6990,11.9580], distance:"ca. 130-160 km", duration:"2-2,5 uur", type:"drive",
+    summary:"Korte rit naar Göteborg. Laat de camper staan en gebruik het OV.",
+    activities:["Haga en fika met kaneelbrood.","Paddan-rondvaart door grachten en haven.","Feskekörka en de kades.","Botanische tuin als rustige optie."],
+    tip:"Parkeren in het centrum is niet aantrekkelijk; laat de camper op de camping.",
+    camp:"Lisebergs Camping Askim Strand is gezinsvriendelijk en aan zee. Andere officiële campings liggen rond Lilleby en aan de stadsrand.",
+    query:"Lisebergs Camping Askim Strand"
+  },
+  {
+    iso:"2026-08-11", date:"Dinsdag 11 augustus", title:"Volle dag Göteborg",
+    focus:[57.6950,11.9920], distance:"Geen verplaatsing", duration:"vrije invulling", type:"rest",
+    summary:"Kies één hoofdprogramma: levendig of juist ontspannen.",
+    activities:["Liseberg.","Alternatief: boot naar Brännö of Vrångö.","Universeum bij minder goed weer.","Zwemmen bij Askim Strand."],
+    walk:"Vrångö of Brännö: ongeveer 4-7 km, grotendeels vlak met rotsachtige kuststukken.",
+    tip:"Controleer vooraf tickets en ride pass voor Liseberg. Voor veel archipelverbindingen geldt het gewone OV.",
+    query:"Liseberg Gothenburg"
+  },
+  {
+    iso:"2026-08-12", date:"Woensdag 12 augustus", title:"Göteborg naar omgeving Hamburg",
+    focus:[53.3998,9.9680], distance:"ca. 650-690 km", duration:"8-9 uur incl. stops", type:"long",
+    summary:"Langste rijdag, vrijwel geheel snelweg. Vertrek rond 07.00 uur.",
+    activities:["Pauze aan de Zweedse westkust of net na Malmö.","Lange lunchpauze in Denemarken.","Na aankomst alleen eten en slapen."],
+    tip:"Wissel bestuurders waar mogelijk. Houd rekening met tolbruggen en drukte rond Kopenhagen en Hamburg.",
+    camp:"Reserveer vooraf direct aan of dicht bij de A7/A1, bij voorkeur zonder Hamburg de volgende ochtend te doorkruisen.",
+    query:"camping A7 Hamburg north"
+  },
+  {
+    iso:"2026-08-13", date:"Donderdag 13 augustus", title:"Omgeving Hamburg naar Baarn",
+    focus:[52.2112,5.2877], distance:"ca. 430-470 km", duration:"5-6 uur netto", type:"drive",
+    summary:"Overzichtelijke laatste etappe na de lange rit van gisteren.",
+    activities:["Koffiestop rond Osnabrück.","Lunchpauze vóór de Nederlandse grens.","Thuis alleen de noodzakelijke spullen uitladen."],
+    tip:"Controleer de avond ervoor brandstof, afvalwater en vertrektijd van de camping.",
+    query:"Baarn"
+  }
+];
+
+const activityPoints = [
+  {name:"Nyhavn", icon:"⚓", lat:55.6797, lng:12.5910, note:"Havenwandeling, rondvaart en kades."},
+  {name:"Tivoli", icon:"🎢", lat:55.6737, lng:12.5681, note:"Optie voor de namiddag of avond."},
+  {name:"Sunnabron / Åsnen", icon:"🛶", lat:56.6260, lng:14.7250, note:"Toegang tot nationaal park en wateractiviteiten."},
+  {name:"Visingsö", icon:"🚲", lat:58.0470, lng:14.3220, note:"Dagtocht per veerboot; goed per fiets."},
+  {name:"Omberg", icon:"🌄", lat:58.3230, lng:14.6550, note:"Uitzichten over Vättern."},
+  {name:"Naturum Tåkern", icon:"🦆", lat:58.3280, lng:14.8070, note:"Bezoekerscentrum en natuurgebied."},
+  {name:"Gamla Stan", icon:"🏘️", lat:59.3250, lng:18.0710, note:"Historisch Stockholm."},
+  {name:"Vasamuseum", icon:"⛵", lat:59.3280, lng:18.0910, note:"Hoofdactiviteit voor de klassieke Stockholm-dag."},
+  {name:"Vaxholm", icon:"⛴️", lat:59.4030, lng:18.3530, note:"Archipel, vesting, haven en lunch."},
+  {name:"Mariefred / Gripsholm", icon:"🏰", lat:59.2590, lng:17.2230, note:"Optionele tussenstop bij vroeg vertrek."},
+  {name:"Örebro Slott", icon:"🏰", lat:59.2730, lng:15.2150, note:"Kasteel en rivierpromenade."},
+  {name:"Tiveden bezoekersgebied", icon:"🌲", lat:58.7180, lng:14.6020, note:"Gebruik de officiële hoofdroute en parkeerplaatsen."},
+  {name:"Läckö Slott", icon:"🏰", lat:58.6740, lng:13.2200, note:"Kasteel aan het Vänernmeer."},
+  {name:"Smögen", icon:"🦐", lat:58.3550, lng:11.2250, note:"Optionele kustrit wanneer het niet te druk is."},
+  {name:"Haga", icon:"☕", lat:57.6990, lng:11.9580, note:"Fika en kaneelbrood."},
+  {name:"Liseberg", icon:"🎢", lat:57.6950, lng:11.9920, note:"Attractiepark en avondprogramma."},
+  {name:"Brännö", icon:"⛴️", lat:57.6480, lng:11.7740, note:"Zuidelijke archipel."},
+  {name:"Vrångö", icon:"⛴️", lat:57.5720, lng:11.7880, note:"Zuidelijke archipel en kustwandeling."}
+];
+
+const walkPoints = [
+  {name:"Bjurkärr, Åsnen", lat:56.6260, lng:14.7250, note:"2-4 km · eenvoudig · oud beukenbos en vlakke paden"},
+  {name:"Trollberget / Åsnenroute", lat:56.6700, lng:14.7300, note:"3-5 km · eenvoudig tot gemiddeld · bos, wortels en meeroevers"},
+  {name:"Visingsö", lat:58.0470, lng:14.3220, note:"5-8 km · eenvoudig · vlak eiland, ook goed per fiets"},
+  {name:"Omberg - Hjässan", lat:58.3230, lng:14.6550, note:"2-4 km · gemiddeld · uitzicht en enkele steilere stukken"},
+  {name:"Djurgården", lat:59.3250, lng:18.1330, note:"5-7 km · eenvoudig · park, musea en water"},
+  {name:"Vaxholm", lat:59.4030, lng:18.3530, note:"4-6 km · eenvoudig · dorp en kust"},
+  {name:"Stenkällerundan, Tiveden", lat:58.7180, lng:14.6020, note:"ca. 2,2 km · gemiddeld · kort maar rotsachtig"},
+  {name:"Trollkyrkorundan, Tiveden", lat:58.7090, lng:14.6100, note:"ca. 4,6 km · gemiddeld · rotsen, wortels en bos"},
+  {name:"Läckö / Kållandsö", lat:58.6740, lng:13.2200, note:"3-5 km · eenvoudig · meer, bos en kasteelomgeving"},
+  {name:"Ramsvikslandet", lat:58.4310, lng:11.2480, note:"3-6 km · gemiddeld · granietrotsen en zee"},
+  {name:"Vrångö / Brännö", lat:57.5720, lng:11.7880, note:"4-7 km · eenvoudig tot gemiddeld · archipel en rotsachtige kust"}
+];
+
+const camps = [
+  {name:"Omgeving Hamburg", lat:53.3998, lng:9.9680, note:"Zoek rond Seevetal, Winsen, Buchholz of noordelijk Hamburg."},
+  {name:"Kopenhagen - camping met OV", lat:55.6400, lng:12.5000, note:"Kies vooral op OV-verbinding en toegestane camperlengte."},
+  {name:"Getnö Lake Åsnen Resort", lat:56.6150, lng:14.7250, note:"Praktisch voorbeeld uit de agenda; reserveer in het hoogseizoen."},
+  {name:"Gränna Camping", lat:58.0210, lng:14.4550, note:"Praktisch bij haven en dorp; zeer hoge reserveringsprioriteit."},
+  {name:"Stockholm - First Camp / Bredäng", lat:59.2970, lng:17.9460, note:"Kies op OV en toegestane camperlengte."},
+  {name:"Örebro - rand van de stad", lat:59.2900, lng:15.1600, note:"Zoek bus- of fietsverbinding."},
+  {name:"Kronocamping Lidköping", lat:58.5060, lng:13.1480, note:"Praktische uitvalsbasis voor Vänern en Läckö."},
+  {name:"Ramsvik / Fjällbacka", lat:58.4310, lng:11.2480, note:"Ramsvik Stugby & Camping, Wiggersviks of rond Fjällbacka."},
+  {name:"Lisebergs Camping Askim Strand", lat:57.6180, lng:11.9040, note:"Gezinsvriendelijk en aan zee."}
+];
+
+const map = L.map("map", {zoomControl:true}).setView([57.2, 12.8], 5);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  maxZoom: 18,
+  attribution: '&copy; OpenStreetMap-bijdragers'
+}).addTo(map);
+
+const routeLayer = L.layerGroup().addTo(map);
+const activitiesLayer = L.layerGroup().addTo(map);
+const walksLayer = L.layerGroup().addTo(map);
+const campsLayer = L.layerGroup().addTo(map);
+
+function gmaps(lat, lng, query="") {
+  const target = query ? encodeURIComponent(query) : `${lat},${lng}`;
+  return `https://www.google.com/maps/search/?api=1&query=${target}`;
+}
+
+function popupHtml(title, sub, lat, lng, query="") {
+  return `<div class="popup-title">${title}</div>
+    <div class="popup-sub">${sub || ""}</div>
+    <a class="popup-link" href="${gmaps(lat,lng,query)}" target="_blank" rel="noopener">Open in Google Maps</a>`;
+}
+
+const routeLatLngs = routeStops.map(s => [s.lat,s.lng]);
+L.polyline(routeLatLngs, {color:"#ed6a17", weight:5, opacity:.92, lineJoin:"round"}).addTo(routeLayer);
+L.polyline([[55.6761,12.5683],[56.6400,14.7400]], {color:"#ed6a17", weight:5, opacity:.92}).addTo(routeLayer);
+
+routeStops.forEach(stop => {
+  const icon = L.divIcon({
+    className:"",
+    html:`<div class="route-number">${stop.n}</div>`,
+    iconSize:[30,30],
+    iconAnchor:[15,15]
+  });
+  L.marker([stop.lat, stop.lng], {icon})
+    .bindPopup(popupHtml(`${stop.n}. ${stop.name}`, `${stop.dates}${stop.nights ? ` · ${stop.nights} nacht${stop.nights>1?"en":""}` : ""}`, stop.lat, stop.lng, stop.name))
+    .addTo(routeLayer);
+});
+
+activityPoints.forEach(p => {
+  const icon = L.divIcon({className:"", html:`<div class="minor-marker">${p.icon}</div>`, iconSize:[22,22], iconAnchor:[11,11]});
+  L.marker([p.lat,p.lng], {icon})
+    .bindPopup(popupHtml(p.name, p.note, p.lat, p.lng, p.name))
+    .addTo(activitiesLayer);
+});
+
+walkPoints.forEach(p => {
+  const icon = L.divIcon({className:"", html:`<div class="minor-marker walk-marker">🥾</div>`, iconSize:[22,22], iconAnchor:[11,11]});
+  L.marker([p.lat,p.lng], {icon})
+    .bindPopup(popupHtml(p.name, p.note, p.lat, p.lng, p.name))
+    .addTo(walksLayer);
+});
+
+camps.forEach(p => {
+  const icon = L.divIcon({className:"", html:`<div class="minor-marker camp-marker">⛺</div>`, iconSize:[22,22], iconAnchor:[11,11]});
+  L.marker([p.lat,p.lng], {icon})
+    .bindPopup(popupHtml(p.name, p.note, p.lat, p.lng, p.name))
+    .addTo(campsLayer);
+});
+
+// Indicative ferry / excursion connections
+[
+  [[58.0209,14.4676],[58.0470,14.3220]],
+  [[59.3293,18.0686],[59.4030,18.3530]],
+  [[57.7089,11.9746],[57.6480,11.7740],[57.5720,11.7880]]
+].forEach(points => L.polyline(points, {color:"#1f6086", weight:3, dashArray:"7 7", opacity:.8}).addTo(activitiesLayer));
+
+const legend = L.control({position:"bottomright"});
+legend.onAdd = function() {
+  const div = L.DomUtil.create("div","legend");
+  div.innerHTML = `
+    <div class="legend-row"><span class="legend-line" style="background:#ed6a17"></span>Hoofdroute</div>
+    <div class="legend-row"><span class="legend-dot" style="background:#1f6086"></span>Uitstapje / activiteit</div>
+    <div class="legend-row"><span class="legend-dot" style="background:#216b5a"></span>Wandeling</div>
+    <div class="legend-row"><span class="legend-dot" style="background:#6f4ca5"></span>Campingadvies</div>`;
+  return div;
+};
+legend.addTo(map);
+
+const timeline = document.getElementById("timeline");
+let activeIndex = -1;
+
+function renderTimeline(filter="") {
+  const term = filter.trim().toLowerCase();
+  timeline.innerHTML = "";
+  days.forEach((day, index) => {
+    const haystack = [
+      day.date, day.title, day.summary, day.distance, day.duration,
+      ...(day.activities || []), day.walk || "", day.tip || "", day.camp || ""
+    ].join(" ").toLowerCase();
+    if (term && !haystack.includes(term)) return;
+
+    const card = document.createElement("article");
+    card.className = "day-card";
+    card.dataset.index = index;
+    if (index === activeIndex) card.classList.add("active");
+
+    const todayIso = new Date().toISOString().slice(0,10);
+    if (day.iso === todayIso) card.classList.add("today");
+
+    const typeClass = day.type === "long" ? "long" : day.type === "drive" ? "drive" : "rest";
+    const typeText = day.type === "long" ? "Lange rijdag" : day.type === "drive" ? "Rijdag" : "Verblijfsdag";
+
+    card.innerHTML = `
+      <div class="day-date">${day.date}</div>
+      <h3>${day.title}</h3>
+      <div class="day-meta">
+        <span class="pill ${typeClass}">${typeText}</span>
+        <span class="pill">${day.distance}</span>
+        <span class="pill">${day.duration}</span>
+      </div>
+      <p class="day-summary">${day.summary}</p>
+      <div class="details">
+        ${day.activities?.length ? `<div class="detail-section"><strong>Activiteiten</strong><ul>${day.activities.map(a=>`<li>${a}</li>`).join("")}</ul></div>` : ""}
+        ${day.walk ? `<div class="walk-box"><strong>🥾 Wandeling</strong><br>${day.walk}</div>` : ""}
+        ${day.tip ? `<div class="tip-box"><strong>📌 Rustig-reizen-tip</strong><br>${day.tip}</div>` : ""}
+        ${day.camp ? `<div class="camp-box"><strong>🏕️ Campingadvies</strong><br>${day.camp}</div>` : ""}
+        <div class="card-actions">
+          <a href="${gmaps(day.focus[0],day.focus[1],day.query)}" target="_blank" rel="noopener">📍 Google Maps</a>
+          <button type="button" class="centre-btn">🎯 Centreer kaart</button>
+        </div>
+        ${day.camp ? `
+        <div class="booking">
+          <label for="status-${index}">Reserveringsstatus</label>
+          <select id="status-${index}" class="status-select">
+            <option value="">Nog niet ingesteld</option>
+            <option value="shortlist">Op shortlist</option>
+            <option value="contacted">Gecontacteerd</option>
+            <option value="booked">Geboekt</option>
+            <option value="not-needed">Niet nodig</option>
+          </select>
+          <label for="notes-${index}">Eigen notitie</label>
+          <textarea id="notes-${index}" class="notes" placeholder="Boekingsnummer, aankomsttijd, alternatief…"></textarea>
+        </div>` : ""}
+      </div>`;
+
+    card.addEventListener("click", (event) => {
+      if (event.target.closest("a, button, select, textarea")) return;
+      activateDay(index, true);
+    });
+
+    const centreBtn = card.querySelector(".centre-btn");
+    centreBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      map.flyTo(day.focus, 10, {duration:.8});
+    });
+
+    timeline.appendChild(card);
+    restoreBooking(card, index);
+  });
+}
+
+function restoreBooking(card, index) {
+  const status = card.querySelector(".status-select");
+  const notes = card.querySelector(".notes");
+  if (!status || !notes) return;
+
+  const saved = JSON.parse(localStorage.getItem(`zweden2026-day-${index}`) || "{}");
+  status.value = saved.status || "";
+  notes.value = saved.notes || "";
+
+  const save = () => localStorage.setItem(`zweden2026-day-${index}`, JSON.stringify({
+    status: status.value,
+    notes: notes.value
+  }));
+  status.addEventListener("change", save);
+  notes.addEventListener("input", save);
+}
+
+function activateDay(index, scroll=false) {
+  activeIndex = index;
+  document.querySelectorAll(".day-card").forEach(c => c.classList.toggle("active", Number(c.dataset.index) === index));
+  const day = days[index];
+  map.flyTo(day.focus, 9, {duration:.8});
+  if (scroll) {
+    const card = document.querySelector(`.day-card[data-index="${index}"]`);
+    card?.scrollIntoView({behavior:"smooth", block:"nearest"});
+  }
+}
+
+renderTimeline();
+
+document.getElementById("searchInput").addEventListener("input", e => renderTimeline(e.target.value));
+
+document.querySelectorAll("[data-layer]").forEach(input => {
+  input.addEventListener("change", () => {
+    const layers = {route:routeLayer, activities:activitiesLayer, walks:walksLayer, camps:campsLayer};
+    const layer = layers[input.dataset.layer];
+    input.checked ? layer.addTo(map) : map.removeLayer(layer);
+  });
+});
+
+document.getElementById("routeBtn").addEventListener("click", () => {
+  map.fitBounds(L.latLngBounds(routeLatLngs).pad(.12));
+});
+
+document.getElementById("printBtn").addEventListener("click", () => window.print());
+
+document.getElementById("todayBtn").addEventListener("click", () => {
+  const today = new Date().toISOString().slice(0,10);
+  let index = days.findIndex(d => d.iso === today);
+  if (index < 0) {
+    const now = new Date(today);
+    if (now < new Date(days[0].iso)) index = 0;
+    else index = days.length - 1;
+  }
+  activateDay(index, true);
+});
+
+map.fitBounds(L.latLngBounds(routeLatLngs).pad(.12));
+
+setTimeout(() => {
+  const today = new Date().toISOString().slice(0,10);
+  const idx = days.findIndex(d => d.iso === today);
+  if (idx >= 0) activateDay(idx, true);
+}, 250);
+</script>
+</body>
+</html>
