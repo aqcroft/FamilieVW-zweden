@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://unpkg.com">
   <link rel="preconnect" href="https://tile.openstreetmap.org">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIINfQ3NQeoCAl8MwP60fOaTUNlK3s0O8pA="
+        integrity="sha256-p4NxAoJBhIINfQ3NQeoCAl8MwP60fOqElyVCpO7o5qQ="
         crossorigin="">
 
   <style>
@@ -138,6 +138,9 @@
       width: 100%;
       height: 100%;
       background: #d8eef8;
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
     }
 
     .summary-card, .filters-card, .day-card {
@@ -368,13 +371,13 @@
     @media (max-width: 850px) {
       body { overflow: auto; }
       .app { height: auto; min-height: 100%; display: block; }
-      header { position: sticky; top: 0; z-index: 1100; }
-      .toolbar { position: sticky; top: 65px; z-index: 1090; }
+      header { position: static; }
+      .toolbar { position: sticky; top: 0; z-index: 1090; }
       .layout {
         display: flex;
         flex-direction: column;
       }
-      #map { height: 52vh; min-height: 390px; order: 1; }
+      #map { height: 46vh; min-height: 340px; order: 1; }
       aside {
         order: 2;
         overflow: visible;
