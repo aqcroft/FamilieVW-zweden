@@ -562,4 +562,601 @@
       gap: 7px;
     }
 
-    .
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .legend-line {
+      width: 20px;
+      height: 3px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    @media (max-width: 850px) {
+      body {
+        overflow: auto;
+      }
+
+      .app {
+        height: auto;
+        min-height: 100%;
+        display: block;
+      }
+
+      header {
+        position: static;
+      }
+
+      .toolbar {
+        position: sticky;
+        top: 0;
+        z-index: 1090;
+      }
+
+      .layout {
+        display: flex;
+        flex-direction: column;
+      }
+
+      #map {
+        height: 46vh;
+        min-height: 340px;
+        order: 1;
+      }
+
+      aside {
+        order: 2;
+        overflow: visible;
+        border-right: 0;
+      }
+
+      .trip-badge {
+        display: none;
+      }
+    }
+
+    @media print {
+      body {
+        overflow: visible;
+        background: white;
+      }
+
+      .app {
+        display: block;
+      }
+
+      header {
+        color: #111;
+        background: none;
+        padding: 0 0 12px;
+      }
+
+      .brand p,
+      .trip-badge,
+      .toolbar,
+      .filters-card,
+      #map,
+      .booking,
+      .card-actions {
+        display: none !important;
+      }
+
+      .layout {
+        display: block;
+      }
+
+      aside {
+        overflow: visible;
+        border: 0;
+        padding: 0;
+      }
+
+      .summary-card {
+        box-shadow: none;
+      }
+
+      .day-card {
+        break-inside: avoid;
+        box-shadow: none;
+        margin-bottom: 8px;
+      }
+
+      .details {
+        display: block !important;
+      }
+
+      .footer-note {
+        margin-top: 15px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <h1>Rondreis Zweden 2026</h1>
+        <p>Baarn - Kopenhagen - meren - Stockholm - Göteborg</p>
+      </div>
+
+      <div class="trip-badge">
+        25 juli t/m 13 augustus · camper 7,7 m
+      </div>
+    </header>
+
+    <nav class="toolbar" aria-label="Reisplanner acties">
+      <button class="primary" id="todayBtn">
+        📅 Vandaag
+      </button>
+
+      <button id="routeBtn">
+        🗺️ Volledige route
+      </button>
+
+      <button id="printBtn">
+        🖨️ Print / bewaar als PDF
+      </button>
+
+      <a
+        href="Rondreis_Zweden_meren_Stockholm_Goteborg_2026.pdf"
+        target="_blank"
+        rel="noopener"
+      >
+        📄 Originele agenda
+      </a>
+
+      <span class="spacer"></span>
+
+      <span
+        style="
+          font-size: .76rem;
+          color: #64726e;
+          white-space: nowrap;
+        "
+      >
+        Kaartposities zijn indicatief
+      </span>
+    </nav>
+
+    <main class="layout">
+      <aside id="sidebar">
+        <section class="summary-card">
+          <div class="summary-title">
+            <h2>Reisoverzicht</h2>
+            <span>Versie 3</span>
+          </div>
+
+          <div class="stats">
+            <div class="stat">
+              <strong>20 dagen</strong>
+              <span>25 jul - 13 aug</span>
+            </div>
+
+            <div class="stat">
+              <strong>3.300-3.500 km</strong>
+              <span>totale rijafstand</span>
+            </div>
+
+            <div class="stat">
+              <strong>11 nachtenstops</strong>
+              <span>incl. terugreis</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="filters-card">
+          <div class="filters-title">
+            Kaartlagen
+          </div>
+
+          <div class="filter-grid">
+            <label class="filter-chip">
+              <input
+                type="checkbox"
+                data-layer="route"
+                checked
+              >
+              🟠 Route
+            </label>
+
+            <label class="filter-chip">
+              <input
+                type="checkbox"
+                data-layer="activities"
+                checked
+              >
+              📍 Uitstapjes
+            </label>
+
+            <label class="filter-chip">
+              <input
+                type="checkbox"
+                data-layer="walks"
+                checked
+              >
+              🥾 Wandelingen
+            </label>
+
+            <label class="filter-chip">
+              <input
+                type="checkbox"
+                data-layer="camps"
+                checked
+              >
+              🏕️ Campings
+            </label>
+          </div>
+
+          <input
+            id="searchInput"
+            class="search"
+            type="search"
+            placeholder="Zoek dag, plaats of activiteit…"
+          >
+        </section>
+
+        <div class="timeline-label">
+          Dag voor dag
+        </div>
+
+        <div id="timeline"></div>
+
+        <div class="footer-note">
+          De inhoud volgt de aangeleverde reisagenda.
+          Openingstijden, bootdiensten, toegangsregels,
+          tol- en voertuigcategorieën, weersomstandigheden
+          en campingbeschikbaarheid kunnen wijzigen.
+          Controleer deze vlak voor vertrek. De kaart is
+          bedoeld als reisoverzicht en niet als
+          gecertificeerde campernavigatie.
+        </div>
+      </aside>
+
+      <div
+        id="map"
+        aria-label="Interactieve kaart van de rondreis"
+      ></div>
+    </main>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    const routeStops = [
+      {
+        n: 1,
+        name: "Baarn",
+        dates: "25 juli",
+        nights: 0,
+        lat: 52.2112,
+        lng: 5.2877
+      },
+      {
+        n: 2,
+        name: "Omgeving Hamburg",
+        dates: "25 juli",
+        nights: 1,
+        lat: 53.3998,
+        lng: 9.9680
+      },
+      {
+        n: 3,
+        name: "Kopenhagen",
+        dates: "26-27 juli",
+        nights: 2,
+        lat: 55.6761,
+        lng: 12.5683
+      },
+      {
+        n: 4,
+        name: "Åsnenmeer",
+        dates: "28-30 juli",
+        nights: 3,
+        lat: 56.6400,
+        lng: 14.7400
+      },
+      {
+        n: 5,
+        name: "Gränna / Vättern",
+        dates: "31 juli-2 aug.",
+        nights: 3,
+        lat: 58.0209,
+        lng: 14.4676
+      },
+      {
+        n: 6,
+        name: "Stockholm",
+        dates: "3-5 aug.",
+        nights: 3,
+        lat: 59.3293,
+        lng: 18.0686
+      },
+      {
+        n: 7,
+        name: "Örebro / Tiveden",
+        dates: "6-7 aug.",
+        nights: 2,
+        lat: 59.2753,
+        lng: 15.2134
+      },
+      {
+        n: 8,
+        name: "Vänern / Lidköping",
+        dates: "8 aug.",
+        nights: 1,
+        lat: 58.5052,
+        lng: 13.1577
+      },
+      {
+        n: 9,
+        name: "Bohuslän / Fjällbacka",
+        dates: "9 aug.",
+        nights: 1,
+        lat: 58.5974,
+        lng: 11.2824
+      },
+      {
+        n: 10,
+        name: "Göteborg",
+        dates: "10-11 aug.",
+        nights: 2,
+        lat: 57.7089,
+        lng: 11.9746
+      },
+      {
+        n: 11,
+        name: "Omgeving Hamburg",
+        dates: "12 aug.",
+        nights: 1,
+        lat: 53.3998,
+        lng: 9.9680
+      },
+      {
+        n: 12,
+        name: "Baarn",
+        dates: "13 aug.",
+        nights: 0,
+        lat: 52.2112,
+        lng: 5.2877
+      }
+    ];
+
+    const days = [
+      {
+        iso: "2026-07-25",
+        date: "Zaterdag 25 juli",
+        title: "Baarn naar omgeving Hamburg",
+        focus: [53.3998, 9.9680],
+        distance: "ca. 450 km",
+        duration: "5-6 uur netto",
+        type: "drive",
+        summary:
+          "Praktische eerste etappe via Bremen. Vermijd de binnenstad van Hamburg.",
+        activities: [
+          "Korte avondwandeling langs de Elbe of door een nabijgelegen natuurgebied.",
+          "Eenvoudig diner op de camping; houd de avond bewust leeg."
+        ],
+        tip:
+          "Plan de passage langs Hamburg buiten de avondspits. De A1 en A7 kunnen druk zijn.",
+        camp:
+          "Zoek rond Seevetal, Winsen, Buchholz of noordelijk Hamburg. Controleer vooraf de maximale voertuiglengte.",
+        query: "Seevetal camping"
+      },
+      {
+        iso: "2026-07-26",
+        date: "Zondag 26 juli",
+        title: "Naar Kopenhagen",
+        focus: [55.6761, 12.5683],
+        distance: "ca. 330-360 km",
+        duration: "4,5-5 uur netto",
+        type: "drive",
+        summary:
+          "Via de E45 en E20 over de Grote Belt. Na aankomst alleen installeren en rustig de stad in.",
+        activities: [
+          "Nyhavn en de kades aan het einde van de middag.",
+          "Wandeling via Kongens Nytorv naar de haven.",
+          "Bij voldoende energie: streetfood bij Reffen."
+        ],
+        tip:
+          "Controleer voor de Grote Belt de juiste voertuigcategorie van de camper.",
+        camp:
+          "Kies een camping met goede OV-verbinding, zodat de camper twee dagen kan blijven staan.",
+        query: "camping Copenhagen public transport"
+      },
+      {
+        iso: "2026-07-27",
+        date: "Maandag 27 juli",
+        title: "Volle dag Kopenhagen",
+        focus: [55.6797, 12.5910],
+        distance: "Geen verplaatsing",
+        duration: "rustige stadsdag",
+        type: "rest",
+        summary:
+          "Combineer één hoofdactiviteit met tijd om rond te lopen.",
+        activities: [
+          "Fietstocht of wandeling langs de haven.",
+          "Rosenborg Slot en Kongens Have.",
+          "Tivoli vanaf de namiddag of avond.",
+          "Alternatief: rondvaart vanaf Nyhavn."
+        ],
+        walk:
+          "Nyhavn - Amalienborg - Kastellet - Kleine Zeemeermin, ongeveer 5 km en geheel vlak.",
+        tip:
+          "Laat de camper op de camping en gebruik fiets of openbaar vervoer.",
+        query: "Nyhavn Copenhagen"
+      },
+      {
+        iso: "2026-07-28",
+        date: "Dinsdag 28 juli",
+        title: "Kopenhagen naar het Åsnenmeer",
+        focus: [56.6400, 14.7400],
+        distance: "ca. 220-250 km",
+        duration: "3-3,5 uur",
+        type: "drive",
+        summary:
+          "Na de Öresundbrug volgen bossen, meren en rode boerderijen.",
+        activities: [
+          "Boodschappen doen in Malmö, Lund of Växjö.",
+          "Eerste zwempartij of SUP-tocht.",
+          "Avondwandeling langs het water.",
+          "Zonsondergang vanaf een steiger."
+        ],
+        tip:
+          "Kies bij voorkeur een plaats direct aan het water, maar controleer schaduw en bereikbaarheid voor een lange camper.",
+        camp:
+          "Praktische voorbeelden: Getnö Lake Åsnen Resort of een kleinere camping rond Urshult, Torne of Sirkön. Reserveer in het hoogseizoen.",
+        query: "Getnö Lake Åsnen Resort"
+      },
+      {
+        iso: "2026-07-29",
+        date: "Woensdag 29 juli",
+        title: "Åsnen: waterdag",
+        focus: [56.6260, 14.7250],
+        distance: "Geen verplaatsing",
+        duration: "waterdag",
+        type: "rest",
+        summary:
+          "De beste plek van de reis voor kanoën en suppen.",
+        activities: [
+          "Huur kano's of kajaks voor een halve dag.",
+          "SUP langs beschutte oevers.",
+          "Vissen vanaf de kant of steiger met geldige vergunning.",
+          "Picknick op een rustige oever."
+        ],
+        walk:
+          "Bjurkärr bij Sunnabron: korte lussen van ongeveer 2-4 km door oud beukenbos. Vrijwel vlak.",
+        tip:
+          "Neem waterschoenen, zwemvesten en een waterdichte tas mee.",
+        query: "Bjurkärr Åsnen Sunnabron"
+      },
+      {
+        iso: "2026-07-30",
+        date: "Donderdag 30 juli",
+        title: "Åsnen: bos en eland",
+        focus: [56.6700, 14.7300],
+        distance: "Lokale ritten",
+        duration: "volle dag",
+        type: "rest",
+        summary:
+          "Bos, dieren en een korte fietstocht als afwisseling van de waterdag.",
+        activities: [
+          "Bezoek het nationale park via Sunnabron.",
+          "Fiets een deel van de Banvallsleden.",
+          "Elandenpark als de kinderen dieren willen zien.",
+          "Rustmiddag bij de camping."
+        ],
+        walk:
+          "Trollberget of een lokale natuurroute van 3-5 km. Kies een gemarkeerde lus.",
+        tip:
+          "Muggenmiddel is vooral in de avond nuttig.",
+        query: "Trollberget Åsnen"
+      },
+      {
+        iso: "2026-07-31",
+        date: "Vrijdag 31 juli",
+        title: "Åsnen naar Gränna",
+        focus: [58.0209, 14.4676],
+        distance: "ca. 200-220 km",
+        duration: "3 uur",
+        type: "drive",
+        summary:
+          "Rustig noordwaarts naar Gränna aan het Vätternmeer.",
+        activities: [
+          "Wandeling door Gränna en langs de haven.",
+          "Polkagriswinkel of demonstratie.",
+          "Zwemmen bij de camping als het weer goed is."
+        ],
+        tip:
+          "De historische straatjes zijn smal; parkeer de camper op de camping en loop.",
+        camp:
+          "Gränna Camping ligt praktisch bij haven en dorp. Vanwege hoogseizoen vroeg reserveren.",
+        query: "Gränna Camping"
+      },
+      {
+        iso: "2026-08-01",
+        date: "Zaterdag 1 augustus",
+        title: "Visingsö",
+        focus: [58.0470, 14.3220],
+        distance: "Veerboot als voetpassagier",
+        duration: "dagtocht",
+        type: "rest",
+        summary:
+          "Laat de camper staan en vaar naar het vlakke, groene eiland Visingsö.",
+        activities: [
+          "Fietsen huren bij de haven.",
+          "Ruïnes van Visingsborg.",
+          "Traditionele paardenkoets indien beschikbaar.",
+          "Picknick en zwemmen."
+        ],
+        walk:
+          "Westzijde van het eiland: te voet een lus van 5-8 km; per fiets kan vrijwel het hele eiland.",
+        tip:
+          "Neem een vroege boot en controleer de laatste terugvaart.",
+        query: "Visingsö ferry"
+      },
+      {
+        iso: "2026-08-02",
+        date: "Zondag 2 augustus",
+        title: "Omberg en Vättern",
+        focus: [58.3230, 14.6550],
+        distance: "ca. 45 km enkele reis",
+        duration: "lokale dagtocht",
+        type: "rest",
+        summary:
+          "Mooie uitzichten over Vättern zonder een zware bergwandeling.",
+        activities: [
+          "Bezoek Naturum Tåkern.",
+          "Korte wandeling op Omberg.",
+          "Lunch of fika bij een boerderij of café.",
+          "Bij warm weer zwemmen aan het Vätternmeer."
+        ],
+        walk:
+          "Eenvoudig: Hjässan 2-4 km. Actiever: Ellen Keys led of een gemarkeerde lus van 6-8 km.",
+        tip:
+          "Ga vroeg; parkeerplaatsen kunnen op mooie zomerdagen vol raken.",
+        query: "Omberg Hjässan"
+      },
+      {
+        iso: "2026-08-03",
+        date: "Maandag 3 augustus",
+        title: "Gränna naar Stockholm",
+        focus: [59.3293, 18.0686],
+        distance: "ca. 300-320 km",
+        duration: "3,5-4 uur",
+        type: "drive",
+        summary:
+          "Een overzichtelijke snelwegdag. Arriveer bij voorkeur vóór de avondspits.",
+        activities: [
+          "Eerste wandeling door Gamla Stan.",
+          "Diner rond Södermalm of aan het water.",
+          "Uitzicht vanaf Monteliusvägen bij zonsondergang."
+        ],
+        tip:
+          "Rijd niet met de camper naar het centrum; gebruik metro, bus en boot.",
+        camp:
+          "Voorbeelden: First Camp City-Stockholm of campings aan de zuidwestzijde rond Bredäng. Kies op OV en toegestane camperlengte.",
+        query: "First Camp City Stockholm"
+      },
+      {
+        iso: "2026-08-04",
+        date: "Dinsdag 4 augustus",
+        title: "Stockholm klassiek",
+        focus: [59.3250, 18.1330],
+        distance: "Geen verplaatsing",
+        duration: "stadsdag",
+        type: "rest",
+        summary:
+          "Eén museum in de ochtend, daarna Djurgården en de kades.",
+        activities: [
+          "Vasamuseum.",
+          "Wandeling over Djurgården.",
+          "Skansen of het Vikingmuseum.",
+          "Gamla Stan en het Koninklijk Paleis."
+        ],
+        walk:
+         
