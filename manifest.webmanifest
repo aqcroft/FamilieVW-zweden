@@ -1,0 +1,28 @@
+{
+  "id": "./",
+  "name": "Rondreis Zweden 2026",
+  "short_name": "Zweden 2026",
+  "description": "Interactieve routekaart en dagagenda voor de rondreis door Denemarken en Zweden.",
+  "lang": "nl-NL",
+  "start_url": "./?source=homescreen",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f7f5",
+  "theme_color": "#174f42",
+  "orientation": "any",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
